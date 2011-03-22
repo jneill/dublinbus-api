@@ -1,0 +1,27 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    geokit (1.5.0)
+    haml (3.0.25)
+    json (1.5.1)
+    mime-types (1.16)
+    newrelic_rpm (2.13.4)
+    rack (1.2.2)
+    rest-client (1.6.1)
+      mime-types (>= 1.16)
+    sinatra (1.1.2)
+      rack (~> 1.1)
+      tilt (~> 1.2)
+    tilt (1.2.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (= 1.0.10)
+  geokit
+  haml (= 3.0.25)
+  json (= 1.5.1)
+  newrelic_rpm
+  rest-client
+  sinatra (= 1.1.2)
