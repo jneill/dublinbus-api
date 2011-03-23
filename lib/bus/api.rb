@@ -14,7 +14,7 @@ module Bus
     def initialize
       config = YAML::load File.open('stops.yml')
       stops = config.map { |s| Stop.new(s['ref'], s['name'], Geokit::LatLng.new(s['lat'], s['lng'])) }
-      @stops = StopList.new(stops).by_distance_from(DefaultOrigin)
+      @stops = StopList.new(stops).sort_by_distance_from(DefaultOrigin)
     end
   end
 
@@ -29,7 +29,7 @@ module Bus
       @stops.each { |i| yield i }
     end
 
-    def by_distance_from(origin)
+    def sort_by_distance_from(origin)
       StopList.new sort_by { |s| s.distance_from origin }
     end
 
