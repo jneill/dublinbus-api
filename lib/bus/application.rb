@@ -13,6 +13,10 @@ module Bus
       API = Api.new
     end
 
+    get '/' do
+      redirect 'http://github.com/jneill/dublinbus-api'
+    end
+
     get '/stops' do
       stops = API.stops
 
