@@ -21,19 +21,19 @@ module Bus
       if params[:origin]
       	origin = Geokit::LatLng.normalize(params[:origin])
         stops = stops.by_distance_from origin
-  	  end
+      end
 
       if params[:range]
         stops = stops.within_range(origin, params[:range].to_f)
-  	  end
+      end
 
       if params[:count]
       	stops = stops.take(params[:count].to_i)
-  	  end
+      end
 
       if params[:route]
         stops = stops.on_route(params[:route])
-  	  end
+      end
 
       result = { :stops => stops.map { |s| s.to_hash.delete_if { |k, v| k == :live } } }
 

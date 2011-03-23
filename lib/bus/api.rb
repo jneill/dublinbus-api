@@ -106,6 +106,6 @@ module Bus
         :dest => self.destination,
         :time => self.time
       }
-	end
+    end
   end
 end
