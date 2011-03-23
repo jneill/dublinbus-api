@@ -35,7 +35,7 @@ List all the bus stops in the system with the following optional parameter const
 * *count*: return only the *count* closest stops to *origin*. Default is unbounded.
 * *route*: return only stops where buses on *route* stop
 
-**Example**: GET [/stops?origin=53.343488,-6.249311&range=0.2&count=3](http://dublinbus-api.heroku.com/stops?origin=53.343488,-6.249311&range=0.2&count=3)
+Example: GET [/stops?origin=53.343488,-6.249311&range=0.2&count=3](http://dublinbus-api.heroku.com/stops?origin=53.343488,-6.249311&range=0.2&count=3)
 
 Gets all bus stops within 200m of Pearse St Dart station, limited to the nearest three.
 
@@ -76,7 +76,7 @@ Get the current live information for a particular bus stop.
 * *name*: the name of the bus stop
 * *id*: the ID of the bus stop
 
-**Example**: GET [/stops/lower+o%27connell+st/00271](http://dublinbus-api.heroku.com/stops/lower+o%27connell+st/00271)
+Example: GET [/stops/lower+o%27connell+st/00271](http://dublinbus-api.heroku.com/stops/lower+o%27connell+st/00271)
 
 Gets the current information for the number 2 bus stop on Lower O'Connell St
 
