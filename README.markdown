@@ -1,25 +1,23 @@
 Dublin Bus Real Time API
 ========================
 
-An API to access [Real Time Passenger Information](http://rtpi.ie/) (RTPI) for Dublin Bus services.
+API access to the [Real Time Passenger Information](http://rtpi.ie/) (RTPI) for Dublin Bus services.
 
-Install and run yourself or read from [http://dublinbus-api.heroku.com/stops](http://dublinbus-api.heroku.com/stops).
+Install and run yourself or use the existing service at [http://dublinbus-api.heroku.com/stops](http://dublinbus-api.heroku.com/stops).
 Note that usage of the running service is permitted for non-commercial use only. There are currently no rate
 limits but please be respectful with your usage.
 
 Disclaimer
 ----------
 
-A warning about the availability of the data from this API.
+This service is in no way affiliated with Dublin Bus or the providers of the RTPI service.
 
-The data is taken from the still-in-development [RTPI](http://rtpi.ie/) site. That site will likely
+A warning about the availability of the data from this API. The data is taken from the still-in-development [RTPI](http://rtpi.ie/) site. That site will likely
 change greatly in the near future meaning this code will probably break without warning. Even if the
 site remains stable, I wouldn't be shocked if The Powers That Be decided this isn't a permitted use
 of the data and prevent its use either technically or legally. For now I'm working on the assumption that
 the data is free to use since the RTPI site doesn't list any licensing information and doesn't have a
 [robots.txt](http://www.robotstxt.org/robotstxt.html).
-
-I am not affiliated with Dublin Bus or the providers of the RTPI service.
 
 REST API
 --------
