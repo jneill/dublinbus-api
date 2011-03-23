@@ -13,7 +13,7 @@ module Bus
       API = Api.new
     end
 
-    get '/stop' do
+    get '/stops' do
       stops = API.stops
 
       origin = params[:origin] ? Geokit::LatLng.normalize(params[:origin]) : DefaultOrigin
@@ -28,11 +28,11 @@ module Bus
       jsonp result
     end
 
-    get '/stop/:name' do
+    get '/stops/:name' do
       live_data API.stops.with_name params[:name]
     end
 
-    get '/stop/:name/:id' do
+    get '/stops/:name/:id' do
       live_data API.stops.with_id params[:id]
     end
 
