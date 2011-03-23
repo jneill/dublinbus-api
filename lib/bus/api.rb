@@ -63,7 +63,7 @@ module Bus
     end
 
     def url
-      "/stop/#{CGI::escape(@name.downcase)}/#{@id}"
+      "/stops/#{CGI::escape(@name.downcase)}/#{@id}"
     end
 
     def distance_to(location)
