@@ -4,7 +4,7 @@ require 'json'
 module Sinatra
   module Jsonp
     def jsonp(data)
-      response = data.to_json
+      response = JSON.pretty_generate data
 
       callback = params.values_at('callback','jscallback','jsonp','jsoncallback').first
       response = "#{callback}(#{response})" if callback
