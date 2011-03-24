@@ -17,6 +17,18 @@ module Bus
       redirect 'http://github.com/jneill/dublinbus-api'
     end
 
+    get '/services' do
+      services = API.services
+
+      jsonp({ :services => services.map(&:to_hash) })
+    end
+
+    get '/services/:route' do
+      services = API.services.on_route params[:route]
+      not_found if services.none?
+      jsonp({ :services => services.map(&:to_hash) })
+    end
+
     get '/stops' do
       stops = API.stops
 
@@ -26,23 +38,21 @@ module Bus
       stops = stops.within_range(origin, params[:range].to_f) if params[:range]
       stops = stops.take params[:count].to_i if params[:count]
 
-      result = { :stops => stops.map { |s| s.to_hash.delete_if { |k, v| k == :live } } }
-
-      jsonp result
+      jsonp({ :stops => stops.map { |s| s.to_hash.delete_if { |k, v| k == :live } } })
     end
 
     get '/stops/:name' do
-      live_data API.stops.with_name params[:name]
-    end
-
-    get '/stops/:name/:id' do
-      live_data API.stops.with_id params[:id]
-    end
-
-    def live_data(stops)
+      stops = API.stops.with_name params[:name]
       not_found if stops.none?
       stops.each(&:update!)
       jsonp({ :stops => stops.map(&:to_hash) })
-	end
+    end
+
+    get '/stops/:name/:id' do
+      stop = API.stops.stops[params[:id]]
+      not_found unless stop
+      stop.update!
+      jsonp({ :stops => [stop.to_hash] })
+    end
   end
 end

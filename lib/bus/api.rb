@@ -9,13 +9,18 @@ module Bus
   DefaultOrigin = Geokit::LatLng.new(53.347778,-6.259722)
 
   class Api
-    attr_reader :stops
+    attr_reader :stops, :services
 
     def initialize
       config = YAML::load File.open('service-info.yml')
 
       stops = config['stops'].map { |s| Stop.new(s['id'], s['name'], Geokit::LatLng.normalize(s['location'])) }
       @stops = StopList.new(stops).sort_by_distance_from(DefaultOrigin)
+
+      services = config['services'].map do |s|
+        Service.new(s['route'], s['stops'].map { |x| @stops[x] })
+      end
+      @services = ServiceList.new services
     end
   end
 
@@ -23,11 +28,15 @@ module Bus
     include Enumerable
 
     def initialize(stops)
-      @stops = stops
+      @stops = Hash[ stops.map{ |s| [s.id, s] }]
+    end
+
+    def[](id)
+      @stops[id]
     end
 
     def each
-      @stops.each { |i| yield i }
+      @stops.each { |id, s| yield s }
     end
 
     def sort_by_distance_from(origin)
@@ -38,12 +47,46 @@ module Bus
       StopList.new select { |s| s.distance_from(origin) <= range }	
     end
 
-    def with_id(id)
-      StopList.new select { |s| s.id == id }
+    def with_name(name)
+      StopList.new select { |s| s.name.downcase == name }
+    end
+  end
+
+  class ServiceList
+    include Enumerable
+
+    def initialize(services)
+      @services = services
+    end
+
+    def each
+      @services.each { |s| yield s }
+    end
+
+    def on_route(route)
+      ServiceList.new select { |s| s.route.downcase == route }
+    end
+
+    def within_range(origin, range)
+      StopList.new select { |s| s.distance_from(origin) <= range }	
     end
 
     def with_name(name)
       StopList.new select { |s| s.name.downcase == name }
+    end
+  end
+
+  class Service < Struct.new(:route, :stops)
+    def to_hash
+      {
+        :route => self.route,
+        :from => self.stops.first.name,
+        :to => self.stops.last.name
+      }
+    end
+
+    def url
+      "/services/#{CGI::escape(@name.downcase)}/#{@id}"
     end
   end
 
