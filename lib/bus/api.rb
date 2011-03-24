@@ -12,8 +12,9 @@ module Bus
     attr_reader :stops
 
     def initialize
-      config = YAML::load File.open('stops.yml')
-      stops = config.map { |s| Stop.new(s['ref'], s['name'], Geokit::LatLng.new(s['lat'], s['lng'])) }
+      config = YAML::load File.open('service-info.yml')
+
+      stops = config['stops'].map { |s| Stop.new(s['id'], s['name'], Geokit::LatLng.normalize(s['location'])) }
       @stops = StopList.new(stops).sort_by_distance_from(DefaultOrigin)
     end
   end
