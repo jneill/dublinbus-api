@@ -25,7 +25,6 @@ module Bus
       stops = stops.sort_by_distance_from origin if params[:origin]
       stops = stops.within_range(origin, params[:range].to_f) if params[:range]
       stops = stops.take params[:count].to_i if params[:count]
-      stops = stops.on_route params[:route] if params[:route]
 
       result = { :stops => stops.map { |s| s.to_hash.delete_if { |k, v| k == :live } } }
 
