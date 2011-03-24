@@ -48,7 +48,7 @@ module Bus
     end
 
     def with_name(name)
-      StopList.new select { |s| s.name.downcase == name }
+      StopList.new select { |s| s.name.casecmp? name }
     end
   end
 
@@ -72,7 +72,7 @@ module Bus
     end
 
     def with_name(name)
-      StopList.new select { |s| s.name.downcase == name }
+      StopList.new select { |s| s.name.casecmp? name }
     end
   end
 
