@@ -1,4 +1,6 @@
 require 'bus/api'
+require 'bus/views'
+require 'yaml'
 require 'json'
 require 'sinatra/base'
 require 'sinatra/jsonp'
@@ -10,7 +12,7 @@ module Bus
     helpers Sinatra::Jsonp
 
     configure do
-      API = Api.new
+      API = Api.new(YAML::load(File.open('service-info.yml')))
     end
 
     get '/' do
@@ -20,13 +22,23 @@ module Bus
     get '/services' do
       services = API.services
 
-      jsonp({ :services => services.map(&:to_hash) })
+      view :services, services
     end
 
     get '/services/:route' do
       services = API.services.on_route params[:route]
+
       not_found if services.none?
-      jsonp({ :services => services.map(&:to_hash) })
+
+      view :services, services, :stops => true
+    end
+
+    get '/services/:route/:id' do
+      services = [API.services[params[:id]]]
+
+      not_found if services.none?
+
+      view :services, services, :stops => true
     end
 
     get '/stops' do
@@ -36,23 +48,29 @@ module Bus
 
       stops = stops.sort_by_distance_from origin if params[:origin]
       stops = stops.within_range(origin, params[:range].to_f) if params[:range]
-      stops = stops.take params[:count].to_i if params[:count]
+      stops = stops.on_routes params[:routes].split(',') if params[:routes]
 
-      jsonp({ :stops => stops.map { |s| s.to_hash.delete_if { |k, v| k == :live } } })
+      view :stops, stops
     end
 
     get '/stops/:name' do
       stops = API.stops.with_name params[:name]
+
       not_found if stops.none?
-      stops.each(&:update!)
-      jsonp({ :stops => stops.map(&:to_hash) })
+
+      view :stops, stops
     end
 
     get '/stops/:name/:id' do
-      stop = API.stops.stops[params[:id]]
-      not_found unless stop
-      stop.update!
-      jsonp({ :stops => [stop.to_hash] })
+      stops = [API.stops[params[:id]]]
+
+      not_found if stops.none?
+
+      view :stops, stops, :buses => true
+    end
+
+    def view(view, data, options = {})
+      jsonp(Views.new.method(view).call(data, options))
     end
   end
 end

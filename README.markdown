@@ -26,48 +26,60 @@ The API is exposed as a very simple REST interface.
 
 JSON is the only format supported. JSONP will be returned if a *callback* parameter is passed.
 
+### Stops
+
 **GET [/stops](http://dublinbus-api.heroku.com/stops)**
 
 List all the bus stops in the system with the following optional parameter constraints:
 
-* *origin*: a 'lat,lng' value which serves as a reference point from which distances are measured. Defaults to '53.347778,-6.259722' (54 O'Connell St, Dublin 1)
+* *origin*: a 'lat,lng' value which serves as a reference point from which distances are measured. Defaults to '53.347778,-6.259722' (54 O'Connell St)
 * *range*: return only stops within *range* kilometers of *origin*. Default is unbounded.
-* *count*: return only the *count* closest stops to *origin*. Default is unbounded.
-* *route*: return only stops where buses on *route* stop
+* *routes*: return only stops along the comma separated *routes*
 
-Example: GET [/stops?origin=53.343488,-6.249311&range=0.2&count=3](http://dublinbus-api.heroku.com/stops?origin=53.343488,-6.249311&range=0.2&count=3)
+**note** results are limited to 30 entries per request, pagination will be implemented
 
-Gets all bus stops within 200m of Pearse St Dart station, limited to the nearest three.
+Example: GET [/stops?origin=53.343488,-6.249311&range=0.2&routes=2,3](http://dublinbus-api.heroku.com/stops?origin=53.343488,-6.249311&range=0.2&routes=2,3)
+
+Gets all #2 or #3 bus stops within 200m of Pearse St Dart station
 
 Result:
 
     {
-      "stops": [
+      "data": [
         {
-          "href":"/stop/westland+row/00495",
-          "loc":"53.343536,-6.249864",
-          "routes":["7"],
-          "name":"Westland Row"
+          "href": "/stop/westland+row/00495",
+          "name": "Westland Row"
+          "location": "53.343536,-6.249864",
+          "services": [
+            {
+              "href": "/services/2/0203",
+              "route": "2",
+              "from": {
+                "href": "/stops/park+avenue/00381",
+                "name": "Park Avenue",
+                "location": "53.324195,-6.212297"
+              },
+              "to": {
+                "href": "/stops/upper+o%27connell+st/00279",
+                "name": "Upper O'Connell St",
+                "location": "53.350012,-6.260653"
+              }
+            },
+            ...
+          ],
         },
-        {
-          "href":"/stop/westland+row/02809",
-          "loc":"53.34303,-6.249845",
-          "routes":["7"],
-          "name":"Westland Row"
-        },
-        {
-          "href":"/stop/pearse+street/00399",
-          "loc":"53.343863,-6.248146",
-          "routes":["7"],
-          "name":"Pearse Street"
-        }
+        ...
       ]
     }
 
 * *href*: absolute path to the bus stop resource
-* *loc*: the 'lat,lng' position of the bus stop
-* *routes*: the routes that stop at the bus stop
 * *name*: a non-unique name given to the bus stop
+* *location*: the 'lat,lng' position of the bus stop
+* *services*: the set of services that stop at the stop
+  * *href*: absolute path to the service
+  * *route*: the name of the service's route
+  * *from*: the bus stop that the route starts at
+  * *to*: the bus stop that the route stops at
 
 **GET [/stops/{name}/{id}](http://dublinbus-api.heroku.com/stops/lower+o%27connell+st/00271)**
 
@@ -83,50 +95,147 @@ Gets the current information for the number 2 bus stop on Lower O'Connell St
 Result:
 
     {
-      "stops": [
+      "data": [
         {
-          "href":"/stop/lower+o%27connell+st/00271",
-          "loc":"53.348513,-6.259624",
-          "routes":["2","7","14","14A","48A"],
-          "name":"Lower O'Connell St",
-          "live": {
-            "updated":"2011-03-23T02:58:14Z",
-            "services":[
-              {
-                "route":"48A",
-                "dest":"Parnell Square West via Ranelagh",
-                "time":"7"
+          "href": "/stop/westland+row/00495",
+          "name": "Westland Row"
+          "location": "53.343536,-6.249864",
+          "services": [
+            {
+              "href": "/services/2/0203",
+              "route": "2",
+              "from": {
+                "href": "/stops/park+avenue/00381",
+                "name": "Park Avenue",
+                "location": "53.324195,-6.212297"
               },
-              {
-                "route":"7",
-                "dest":"O'Connell St via Ballsbridge",
-                "time":"17"
-              },
-              {
-                "route":"14A",
-                "dest":"Parnell Square East via Rathmines",
-                "time":"37"
-              },
-              {
-                "route":"14",
-                "dest":"Parnell Square via Rathmines",
-                "time":"47"
+              "to": {
+                "href": "/stops/upper+o%27connell+st/00279",
+                "name": "Upper O'Connell St",
+                "location": "53.350012,-6.260653"
               }
-            ]
-          }
+            },
+            ...
+          ],
+          "buses": [
+            {
+              "route": "2",
+              "destination": "Upper O'Connell St",
+              "time": "7"
+            },
+            {
+              "route": "3",
+              "destination": "Upper O'Connell St",
+              "time": "15"
+            },
+            ...
+          ]
         }
       ]
     }
 
-The *href*, *loc*, *routes* and *name* fields are the same as above while the *live* 
+The *href*, *name*, *location* and *services* fields are the same as above while the *buses* 
 field contains the live departure information for the bus stop.
 
-* *updated*: the ISO-8601 time indicating when the data was last updated (currently always within the last 30 seconds)
-* *services*: the buses on their way to the stop
+* *buses*: the buses on their way to the stop
   * *route*: the route of the bus
-  * *dest*: the destination of the bus
+  * *destination*: the destination of the bus
   * *time*: the number of minutes before the bus departs the stop
 
+### Services
 
+**GET [/services](http://dublinbus-api.heroku.com/services)**
 
+List all the services in the system. 
 
+Result:
+
+    {
+      "data": [
+        {
+          "href": "/services/2/0203",
+          "route": "2",
+          "from": {
+            "href": "/stops/park+avenue/00381",
+            "name": "Park Avenue",
+            "location": "53.324195,-6.212297"
+          },
+          "to": {
+            "href": "/stops/upper+o%27connell+st/00279",
+            "name": "Upper O'Connell St",
+            "location": "53.350012,-6.260653"
+          }
+        },
+        {
+          "href": "/services/2/0202",
+          "route": "2",
+          "from": {
+            "href": "/stops/ucd+belfield/00766",
+            "name": "UCD Belfield",
+            "location": "53.305397,-6.218354"
+          },
+          "to": {
+            "href": "/stops/upper+o%27connell+st/00279",
+            "name": "Upper O'Connell St",
+            "location": "53.350012,-6.260653"
+          }
+        },
+        ...
+
+**GET [/services/{route}](http://dublinbus-api.heroku.com/services/2)**
+
+Get detailed stop information for all services on a particular route
+
+* *route*: the name of the route the services operates on
+
+Example: GET [/services/2](http://dublinbus-api.heroku.com/services/2)
+
+Gets stop information for services on the #2 route
+
+Result:
+
+    {
+      "data": [
+        {
+          "href": "/services/2/0202",
+          "route": "2",
+          "from": {
+            "href": "/stops/ucd+belfield/00766",
+            "name": "UCD Belfield",
+            "location": "53.305397,-6.218354"
+          },
+          "to": {
+            "href": "/stops/upper+o%27connell+st/00279",
+            "name": "Upper O'Connell St",
+            "location": "53.350012,-6.260653"
+          },
+          "stops": [
+            {
+              "href": "/stops/ucd+belfield/00766",
+              "name": "UCD Belfield",
+              "location": "53.305397,-6.218354"
+            },
+            {
+              "href": "/stops/nutley+lane/02085",
+              "name": "Nutley Lane",
+              "location": "53.315171,-6.220177"
+            },
+            ...
+          ]
+        },
+        ...
+      ]
+    }
+
+**GET [/services/{route}/{id}](http://dublinbus-api.heroku.com/services/2/0202)**
+
+Get detailed stop information for a particular service
+
+* *route*: the name of the route the service operates on
+* *id*: the ID of the route
+
+Example: GET [/services/2/0202](http://dublinbus-api.heroku.com/services/2/0202)
+
+Gets stop information for the #2 from UCD to O'Connell St
+
+Result is exactly as for /services/{route} but the data array will contain exactly one item
